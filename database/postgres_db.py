@@ -6,7 +6,7 @@ load_dotenv()
 
 def sql_start():
     global conn, cur
-    conn = psycopg2.connect(dbname=os.getenv('DBNAME'), user=os.getenv('DBUSERNAME'), password=os.getenv('DBPASSWORD'))
+    conn = psycopg2.connect(dbname=os.getenv('DBNAME'), host='localhost', user=os.getenv('DBUSERNAME'), password=os.getenv('DBPASSWORD'))
     cur = conn.cursor()
 
     if conn:

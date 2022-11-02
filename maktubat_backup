@@ -21,7 +21,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: books; Type: TABLE; Schema: public; Owner: aidarov
+-- Name: books; Type: TABLE; Schema: public; Owner: syrym
 --
 
 CREATE TABLE public.books (
@@ -37,10 +37,10 @@ CREATE TABLE public.books (
 );
 
 
-ALTER TABLE public.books OWNER TO aidarov;
+ALTER TABLE public.books OWNER TO syrym;
 
 --
--- Name: books_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+-- Name: books_id_seq; Type: SEQUENCE; Schema: public; Owner: syrym
 --
 
 CREATE SEQUENCE public.books_id_seq
@@ -52,17 +52,17 @@ CREATE SEQUENCE public.books_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.books_id_seq OWNER TO aidarov;
+ALTER TABLE public.books_id_seq OWNER TO syrym;
 
 --
--- Name: books_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+-- Name: books_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: syrym
 --
 
 ALTER SEQUENCE public.books_id_seq OWNED BY public.books.id;
 
 
 --
--- Name: files; Type: TABLE; Schema: public; Owner: aidarov
+-- Name: files; Type: TABLE; Schema: public; Owner: syrym
 --
 
 CREATE TABLE public.files (
@@ -74,10 +74,10 @@ CREATE TABLE public.files (
 );
 
 
-ALTER TABLE public.files OWNER TO aidarov;
+ALTER TABLE public.files OWNER TO syrym;
 
 --
--- Name: files_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+-- Name: files_id_seq; Type: SEQUENCE; Schema: public; Owner: syrym
 --
 
 CREATE SEQUENCE public.files_id_seq
@@ -89,17 +89,17 @@ CREATE SEQUENCE public.files_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.files_id_seq OWNER TO aidarov;
+ALTER TABLE public.files_id_seq OWNER TO syrym;
 
 --
--- Name: files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+-- Name: files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: syrym
 --
 
 ALTER SEQUENCE public.files_id_seq OWNED BY public.files.id;
 
 
 --
--- Name: genres; Type: TABLE; Schema: public; Owner: aidarov
+-- Name: genres; Type: TABLE; Schema: public; Owner: syrym
 --
 
 CREATE TABLE public.genres (
@@ -109,10 +109,10 @@ CREATE TABLE public.genres (
 );
 
 
-ALTER TABLE public.genres OWNER TO aidarov;
+ALTER TABLE public.genres OWNER TO syrym;
 
 --
--- Name: genres_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+-- Name: genres_id_seq; Type: SEQUENCE; Schema: public; Owner: syrym
 --
 
 CREATE SEQUENCE public.genres_id_seq
@@ -124,17 +124,17 @@ CREATE SEQUENCE public.genres_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.genres_id_seq OWNER TO aidarov;
+ALTER TABLE public.genres_id_seq OWNER TO syrym;
 
 --
--- Name: genres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+-- Name: genres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: syrym
 --
 
 ALTER SEQUENCE public.genres_id_seq OWNED BY public.genres.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: aidarov
+-- Name: users; Type: TABLE; Schema: public; Owner: syrym
 --
 
 CREATE TABLE public.users (
@@ -148,10 +148,10 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO aidarov;
+ALTER TABLE public.users OWNER TO syrym;
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: syrym
 --
 
 CREATE SEQUENCE public.users_id_seq
@@ -163,45 +163,45 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO aidarov;
+ALTER TABLE public.users_id_seq OWNER TO syrym;
 
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: syrym
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: books id; Type: DEFAULT; Schema: public; Owner: aidarov
+-- Name: books id; Type: DEFAULT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.books ALTER COLUMN id SET DEFAULT nextval('public.books_id_seq'::regclass);
 
 
 --
--- Name: files id; Type: DEFAULT; Schema: public; Owner: aidarov
+-- Name: files id; Type: DEFAULT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.files ALTER COLUMN id SET DEFAULT nextval('public.files_id_seq'::regclass);
 
 
 --
--- Name: genres id; Type: DEFAULT; Schema: public; Owner: aidarov
+-- Name: genres id; Type: DEFAULT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.genres ALTER COLUMN id SET DEFAULT nextval('public.genres_id_seq'::regclass);
 
 
 --
--- Name: users id; Type: DEFAULT; Schema: public; Owner: aidarov
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
--- Data for Name: books; Type: TABLE DATA; Schema: public; Owner: aidarov
+-- Data for Name: books; Type: TABLE DATA; Schema: public; Owner: syrym
 --
 
 COPY public.books (id, title, description, author, genre_id, user_id, is_verified, downloads, created_at) FROM stdin;
@@ -209,7 +209,7 @@ COPY public.books (id, title, description, author, genre_id, user_id, is_verifie
 
 
 --
--- Data for Name: files; Type: TABLE DATA; Schema: public; Owner: aidarov
+-- Data for Name: files; Type: TABLE DATA; Schema: public; Owner: syrym
 --
 
 COPY public.files (id, type, file_id, path, book_id) FROM stdin;
@@ -217,7 +217,7 @@ COPY public.files (id, type, file_id, path, book_id) FROM stdin;
 
 
 --
--- Data for Name: genres; Type: TABLE DATA; Schema: public; Owner: aidarov
+-- Data for Name: genres; Type: TABLE DATA; Schema: public; Owner: syrym
 --
 
 COPY public.genres (id, name, views) FROM stdin;
@@ -240,7 +240,7 @@ COPY public.genres (id, name, views) FROM stdin;
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: aidarov
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: syrym
 --
 
 COPY public.users (id, first_name, last_name, username, telegram_id, status, created_at) FROM stdin;
@@ -365,35 +365,35 @@ COPY public.users (id, first_name, last_name, username, telegram_id, status, cre
 
 
 --
--- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+-- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: syrym
 --
 
 SELECT pg_catalog.setval('public.books_id_seq', 8, true);
 
 
 --
--- Name: files_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+-- Name: files_id_seq; Type: SEQUENCE SET; Schema: public; Owner: syrym
 --
 
 SELECT pg_catalog.setval('public.files_id_seq', 6, true);
 
 
 --
--- Name: genres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+-- Name: genres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: syrym
 --
 
 SELECT pg_catalog.setval('public.genres_id_seq', 15, true);
 
 
 --
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: syrym
 --
 
 SELECT pg_catalog.setval('public.users_id_seq', 117, true);
 
 
 --
--- Name: books books_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+-- Name: books books_pkey; Type: CONSTRAINT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.books
@@ -401,7 +401,7 @@ ALTER TABLE ONLY public.books
 
 
 --
--- Name: files files_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+-- Name: files files_pkey; Type: CONSTRAINT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.files
@@ -409,7 +409,7 @@ ALTER TABLE ONLY public.files
 
 
 --
--- Name: genres genres_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+-- Name: genres genres_pkey; Type: CONSTRAINT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.genres
@@ -417,7 +417,7 @@ ALTER TABLE ONLY public.genres
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: syrym
 --
 
 ALTER TABLE ONLY public.users

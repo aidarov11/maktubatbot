@@ -1,0 +1,430 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.5 (Homebrew)
+-- Dumped by pg_dump version 14.5 (Homebrew)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: books; Type: TABLE; Schema: public; Owner: aidarov
+--
+
+CREATE TABLE public.books (
+    id integer NOT NULL,
+    title text,
+    description text,
+    author text,
+    genre_id integer,
+    user_id integer,
+    is_verified boolean DEFAULT false,
+    downloads integer DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.books OWNER TO aidarov;
+
+--
+-- Name: books_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+--
+
+CREATE SEQUENCE public.books_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.books_id_seq OWNER TO aidarov;
+
+--
+-- Name: books_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+--
+
+ALTER SEQUENCE public.books_id_seq OWNED BY public.books.id;
+
+
+--
+-- Name: files; Type: TABLE; Schema: public; Owner: aidarov
+--
+
+CREATE TABLE public.files (
+    id integer NOT NULL,
+    type text NOT NULL,
+    file_id text NOT NULL,
+    path text NOT NULL,
+    book_id integer
+);
+
+
+ALTER TABLE public.files OWNER TO aidarov;
+
+--
+-- Name: files_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+--
+
+CREATE SEQUENCE public.files_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.files_id_seq OWNER TO aidarov;
+
+--
+-- Name: files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+--
+
+ALTER SEQUENCE public.files_id_seq OWNED BY public.files.id;
+
+
+--
+-- Name: genres; Type: TABLE; Schema: public; Owner: aidarov
+--
+
+CREATE TABLE public.genres (
+    id integer NOT NULL,
+    name text NOT NULL,
+    views integer DEFAULT 0
+);
+
+
+ALTER TABLE public.genres OWNER TO aidarov;
+
+--
+-- Name: genres_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+--
+
+CREATE SEQUENCE public.genres_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.genres_id_seq OWNER TO aidarov;
+
+--
+-- Name: genres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+--
+
+ALTER SEQUENCE public.genres_id_seq OWNED BY public.genres.id;
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: aidarov
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    first_name text,
+    last_name text,
+    username text,
+    telegram_id text,
+    status integer DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.users OWNER TO aidarov;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: aidarov
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_id_seq OWNER TO aidarov;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aidarov
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- Name: books id; Type: DEFAULT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.books ALTER COLUMN id SET DEFAULT nextval('public.books_id_seq'::regclass);
+
+
+--
+-- Name: files id; Type: DEFAULT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.files ALTER COLUMN id SET DEFAULT nextval('public.files_id_seq'::regclass);
+
+
+--
+-- Name: genres id; Type: DEFAULT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.genres ALTER COLUMN id SET DEFAULT nextval('public.genres_id_seq'::regclass);
+
+
+--
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Data for Name: books; Type: TABLE DATA; Schema: public; Owner: aidarov
+--
+
+COPY public.books (id, title, description, author, genre_id, user_id, is_verified, downloads, created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: files; Type: TABLE DATA; Schema: public; Owner: aidarov
+--
+
+COPY public.files (id, type, file_id, path, book_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: genres; Type: TABLE DATA; Schema: public; Owner: aidarov
+--
+
+COPY public.genres (id, name, views) FROM stdin;
+1	Ақида	0
+2	Құран	0
+3	Сүннет	0
+4	Хадис	0
+5	Фиқһ	0
+6	Намаз	0
+7	Ораза	0
+8	Зекет және садақа	0
+9	Қажылық	0
+10	Әйел және отбасы	0
+11	Әдеп және тасаууф	0
+12	Адасқан ағымдар	0
+13	Өмірбаян және тарих	0
+14	Ғылым	0
+15	Әртүрлі	0
+\.
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: aidarov
+--
+
+COPY public.users (id, first_name, last_name, username, telegram_id, status, created_at) FROM stdin;
+2	Амир	К	Kalabangas	687933928	0	2022-10-15 12:22:22.87064
+3	Berdibek	None	None	1194626471	0	2022-10-15 22:43:36.978433
+4	Nurbolatovva	None	nurbolatovva	660247872	0	2022-10-15 22:43:36.980665
+5	Мырзабек	None	None	1086083314	0	2022-10-15 22:43:36.982128
+6	Ринат	None	None	1011311285	0	2022-10-15 22:43:36.983695
+7	Nazira	None	naziratazhibai	556809172	0	2022-10-15 22:43:36.985166
+8	Асан	None	tuimedaq_228	929064102	0	2022-10-15 23:26:26.239799
+9	SA	None	None	626710408	0	2022-10-15 23:27:48.838457
+10	Meirambek	Balymbetov	None	972246379	0	2022-10-15 23:52:15.972546
+11	Гул	None	None	2035080959	0	2022-10-16 09:53:27.773059
+12	Rauan	None	rauanzarakhan	596403260	0	2022-10-16 20:36:15.160746
+13	Madi	None	joligayk	826389371	0	2022-10-16 20:36:15.165711
+14	Meyir	Nurlan	meyirnurlan	357749871	0	2022-10-18 14:23:26.185565
+15	Муратова	Назерке	None	887836310	0	2022-10-18 15:14:53.616412
+16	Nurdaulet	None	nurrdaulett	718778928	0	2022-10-18 21:34:00.978575
+17	Dinara	SAYİD	None	1021824207	0	2022-10-18 21:37:06.619459
+18	Ерасыл	None	None	899811986	0	2022-10-19 13:23:54.886438
+19	Аида Берікқалиева	None	None	867086240	0	2022-10-19 14:35:07.650399
+20	Merza_brand	None	None	5036624422	0	2022-10-19 21:38:08.034282
+21	галымбек	шокимов	None	1223627128	0	2022-10-19 21:51:58.788661
+22	Kz	None	qazaqmuslim	1030475608	0	2022-10-19 23:44:33.74046
+23	M.G.	M	None	1091411926	0	2022-10-20 11:03:22.033148
+24	Ramazan	Kalmakhan	None	1807971567	0	2022-10-20 11:03:22.039591
+25	Паруа	None	mzievfpp	947384947	0	2022-10-20 11:16:52.134987
+26	Қадырбек Джумаев	None	None	1943286098	0	2022-10-20 11:23:01.047586
+27	Gulim	None	None	1213949267	0	2022-10-20 16:49:14.50844
+28	Азимова	Айза	None	746165035	0	2022-10-20 16:54:15.337048
+30	Nurshat	None	None	912877489	0	2022-10-20 19:51:06.679632
+31	kxkx	None	None	932349141	0	2022-10-20 21:11:21.592158
+32	🌙	None	TANYSBAEVA	716866314	0	2022-10-20 21:49:49.144622
+33	Aсем ❤️‍🩹	None	assemmalikqz	1089373897	0	2022-10-22 19:00:18.676145
+86	Жанерке	None	None	959563304	0	2022-10-30 11:34:02.506234
+1	🍒	None	fr1day3	5091636122	1	2022-10-15 12:21:09.809591
+29	Syrym Efendi	(zaw.b)	iamsyrym	380448197	1	2022-10-20 19:48:53.729797
+34	Асем Педагог	None	None	2036788941	0	2022-10-22 21:01:27.907038
+35	Матенова М.	None	None	1905318665	0	2022-10-23 12:27:15.44352
+36	Abdurrakhman	Oseruly	None	5610125094	0	2022-10-23 12:27:15.449362
+37	Дана	None	dana_baitleuova	802993035	0	2022-10-23 18:55:50.923725
+38	anonymous	None	None	2034542704	0	2022-10-23 18:55:50.927033
+39	ЖЖЖ	None	None	5133146756	0	2022-10-23 18:55:50.929317
+40	AG	None	None	767789201	0	2022-10-23 18:55:50.931144
+41	Урзат	Ибадуллаева	I_Urzat	718448828	0	2022-10-23 18:55:50.933701
+42	Жулдыз	Батырханкызы	None	936675877	0	2022-10-23 18:55:50.934929
+43	Ybraim Ansagan	None	None	5058722728	0	2022-10-23 18:55:50.937596
+44	Aida	None	None	5535406170	0	2022-10-23 18:55:50.939911
+45	...	None	None	5070498245	0	2022-10-23 18:55:50.941385
+46	Kairat	None	kirosoftware	295091909	0	2022-10-24 07:38:45.615608
+47	Meruert	Okas	Jinjoo_m	797866451	0	2022-10-24 07:38:45.620883
+48	18754	None	None	5167485048	0	2022-10-24 07:38:45.622955
+49	Aidana	None	None	5280597239	0	2022-10-24 07:38:45.624308
+50	Guldana	Rassova	rassovvag	704510703	0	2022-10-24 07:38:45.639223
+51	🌙	None	None	1826336391	0	2022-10-24 07:38:45.640178
+52	Рахымжан	Тилек	None	1204515490	0	2022-10-24 12:20:52.738396
+53	Balausa	Daurenkyzy	balausdaurenkyzy	715960701	0	2022-10-24 19:58:17.534104
+54	_duisekqyzy🐣	None	None	1395381244	0	2022-10-24 22:08:36.717135
+55	ГУЛИМ	None	None	591579472	0	2022-10-24 23:15:04.861913
+56	Yeskendir	Agibayev	None	1330392874	0	2022-10-24 23:15:15.237703
+57	Ayauka	...	Ayauk0	1238099933	0	2022-10-24 23:37:00.839177
+58	Акona	None	Aqnyiett	1196667892	0	2022-10-26 00:47:56.420007
+59	Көшкінбаева	Жұлдызай	zhuldyzai22	876241749	0	2022-10-26 00:47:56.427277
+60	Сейфулла	кадыр	None	5316147774	0	2022-10-26 10:57:00.77902
+61	АЙНУР	ЖАКЕНОВА	AinurJakenova	1121129062	0	2022-10-26 20:43:28.551806
+62	Nurlybek	None	nvrlybek	515485172	0	2022-10-27 14:45:57.081464
+63	Ravil	Asylbekov	None	765709145	0	2022-10-27 16:44:29.154095
+64	Nurgali	Kendebai	Nurgal1	838779573	0	2022-10-27 21:34:41.724192
+65	Maksat	None	None	5628229783	0	2022-10-27 23:33:28.466305
+66	itsme	None	None	5425321957	0	2022-10-28 16:11:07.137835
+67	ulzhalgas	None	xnvmzo	1034847265	0	2022-10-28 23:13:12.088494
+68	Tobi	None	Lovechines	1099587190	0	2022-10-29 02:01:16.245202
+69	Айгерiм	Каржауова	karzhauovaa	1222732088	0	2022-10-29 12:12:06.406971
+70	Temirlan	Zhenis	None	5687081328	0	2022-10-29 12:12:06.408158
+71	Anelya	Nurlanova	anelya_zhumabay	1140971779	0	2022-10-29 17:51:20.77006
+72	..	.	None	1615645812	0	2022-10-29 17:51:20.771742
+73	Altynai	None	None	1442634571	0	2022-10-29 17:51:20.78617
+74	Саят	Жолдыбай	None	723918710	0	2022-10-29 18:48:38.699659
+75	Нұрсұлтан	Кенжетай	None	2099343156	0	2022-10-29 19:29:25.098069
+76	tokayev_tiktok	None	None	928462823	0	2022-10-29 21:07:39.313107
+77	Abu	None	abubakirsatay	345837590	0	2022-10-29 21:36:08.038648
+78	Жансая	Ахметова	jansaua04	1080990990	0	2022-10-29 22:26:03.079351
+79	Кымбат	None	None	1582409579	0	2022-10-29 22:42:50.102935
+80	Who	None	aikerimbal	755523501	0	2022-10-29 23:07:19.766188
+81	Ләззат	Сутенова	None	969266005	0	2022-10-30 00:57:16.246724
+82	@muratova	None	None	1770654194	0	2022-10-30 10:52:18.371569
+83	Бекзат	Жумагазиев	None	320704192	0	2022-10-30 10:52:18.376541
+84	Asem	Zhapparkulova	None	1095771504	0	2022-10-30 10:52:18.380246
+85	шекер	None	mkhsh001	925759008	0	2022-10-30 11:21:38.313782
+87	Дария	Аханова	None	1228447411	0	2022-10-30 16:51:18.961035
+88	….017	None	None	2062284411	0	2022-10-30 16:51:18.966631
+89	🦋	None	None	1798154143	0	2022-10-30 19:33:05.482591
+90	Бикош	None	None	2145691054	0	2022-10-30 21:36:09.114985
+91	Sara	None	None	1180729775	0	2022-10-31 10:19:40.480016
+92	Narqyzym🕊	None	narqyzymmm	5393750691	0	2022-10-31 10:19:40.484935
+93	Aida Razalin	None	aidarazalin	703116795	0	2022-10-31 10:19:40.514173
+94	م	None	ksmvalkka	711063609	0	2022-10-31 10:19:40.520509
+95	Aky'lbek	Izbembet	exx1daeq	774408240	0	2022-10-31 10:19:40.5238
+96	Aya	Turatova	ayaturat0va	1445022437	0	2022-10-31 14:22:32.119258
+97	Nargiz Umirzak	None	nargizumirzak	460842745	0	2022-10-31 14:22:32.126105
+98	𝓐𝓼𝓮𝓶 🤍	None	asyym0	1632430909	0	2022-10-31 14:45:58.127966
+99	Гүлназ	None	None	939660118	0	2022-11-01 15:05:05.394609
+100	Рабия	None	None	912127388	0	2022-11-01 16:42:09.575058
+101	Zaituna	B	None	5445383833	0	2022-11-01 17:31:11.618184
+102	✨	None	baasa012	429993798	0	2022-11-01 17:32:00.947103
+103	Akmaral	Dauitbayevna	Akma_teacher	461023088	0	2022-11-01 19:44:14.395268
+104	Akonya	None	akooooooonnn	721142965	0	2022-11-01 20:04:56.722649
+105	Mukhammedali	None	omirzakali	988814306	0	2022-11-01 20:04:56.729544
+106	Sanjar	Muhammad	Yesik_KTL_21	485114902	0	2022-11-01 23:17:04.868126
+107	⚡️	None	None	934759892	0	2022-11-01 23:17:04.872729
+108	Төлеген	Қайратұлы	tokesh216	729094685	0	2022-11-01 23:17:04.877353
+109	д.	а	flowerslilium	1147839919	0	2022-11-01 23:17:04.89746
+110	Islam	None	None	746013196	0	2022-11-01 23:22:00.795553
+111	Baraq	Baraq	None	5548534436	0	2022-11-01 23:59:18.432952
+112	Issatay	Adil	IssatayAdil	410062113	0	2022-11-02 12:00:35.748694
+113	Aigerim	None	Aigerimka09	5456907541	0	2022-11-02 12:00:35.78377
+114	НМ	None	almugnyi	631224744	0	2022-11-02 12:00:35.79014
+115	-	None	abdullakz	1702765597	0	2022-11-02 13:15:51.513953
+116	Арай	None	None	700960245	0	2022-11-02 13:15:51.521185
+117	Zhk	None	Jake_CC	670262995	0	2022-11-02 16:52:51.072614
+\.
+
+
+--
+-- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+--
+
+SELECT pg_catalog.setval('public.books_id_seq', 8, true);
+
+
+--
+-- Name: files_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+--
+
+SELECT pg_catalog.setval('public.files_id_seq', 6, true);
+
+
+--
+-- Name: genres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+--
+
+SELECT pg_catalog.setval('public.genres_id_seq', 15, true);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: aidarov
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 117, true);
+
+
+--
+-- Name: books books_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.books
+    ADD CONSTRAINT books_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: files files_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.files
+    ADD CONSTRAINT files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: genres genres_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.genres
+    ADD CONSTRAINT genres_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: aidarov
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+

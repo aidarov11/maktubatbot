@@ -5,11 +5,11 @@ menu_btn2 = KeyboardButton('📚 Кітап қосу')
 menu_btn3 = KeyboardButton('📎 Кітап тіркеу')
 menu_btn4 = KeyboardButton('🗑 Кітап жою')
 menu_btn5 = KeyboardButton('📊 Статистика')
-menu_btn6 = KeyboardButton('↩️ Бас мәзір')
+menu_btn6 = KeyboardButton('📝 Рассылка')
+menu_btn7 = KeyboardButton('↩️ Бас мәзір')
 
 menu_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-menu_kb.add(menu_btn1).add(menu_btn2, menu_btn3).add(menu_btn4, menu_btn5).add(menu_btn6)
-
+menu_kb.add(menu_btn1).add(menu_btn2, menu_btn3).add(menu_btn4, menu_btn5).add(menu_btn6).add(menu_btn7)
 
 genre_btn1 = KeyboardButton('Ақида')
 genre_btn2 = KeyboardButton('Құран')
@@ -33,3 +33,11 @@ genre_kb.add(genre_btn1, genre_btn2, genre_btn3, genre_btn4, genre_btn5, genre_b
 
 cancel_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel_kb.add(cancel_btn)
+
+
+mailing_btn1 = KeyboardButton('📩 Өзіме жберу')
+mailing_btn2 = KeyboardButton('💌 Тарату')
+
+mailing_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+mailing_kb.add(mailing_btn1).add(mailing_btn2).add(cancel_btn)
+

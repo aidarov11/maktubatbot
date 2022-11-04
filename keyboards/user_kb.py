@@ -54,9 +54,6 @@ genre_btn14 = KeyboardButton('Ғылым')
 genre_btn15 = KeyboardButton('Әртүрлі')
 genre_btn16 = KeyboardButton('🔙 Артқа')
 
-
 genre_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 genre_kb.add(genre_btn1, genre_btn2, genre_btn3, genre_btn4, genre_btn5, genre_btn6, genre_btn7, genre_btn8, genre_btn9, genre_btn10, genre_btn11, genre_btn2, genre_btn3, genre_btn4, genre_btn15).row(genre_btn16)
-
-
 

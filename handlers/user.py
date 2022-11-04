@@ -47,11 +47,11 @@ async def cancel_search_book_command(message: types.Message, state: FSMContext):
 
 
 async def search_book(message: types.Message, state: FSMContext):
-    if len(message.text) > 1:
+    if len(message.text) > 3:
         books = await postgres_db.get_books(message.text.lower())
         await normalize_books(message.chat.id, books)
     else:
-        await bot.send_message(message.chat.id, '1 символдан коп енгызыныз')
+        await bot.send_message(message.chat.id, '3 әріптен көп сөзді енгізіңіз', parse_mode='html')
 
 
 # Books by genre FSM
@@ -85,7 +85,7 @@ async def books_by_genre(message: types.Message, state: FSMContext):
         if books:
             await normalize_books(message.chat.id, books)
         else:
-            await bot.send_message(message.chat.id, 'Жанрдын ышы бос!')
+            await bot.send_message(message.chat.id, 'Жанрдын іші бос!', parse_mode='html')
 
 
 
@@ -146,11 +146,14 @@ async def upload_book(message: types.ContentTypes.DOCUMENT, state: FSMContext):
 
     if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx', 'txt']:
         book_id = await postgres_db.add_empty_book(user_id)
+
+        await bot.send_message(message.chat.id, 'Күте тұрыңыз кітап жүктеліп жатыр...')
+
         file_id, file_path = await download_file(message.document)
         await postgres_db.add_file(file_type, file_id, file_path, book_id)
 
         await state.finish()
-        await menu_keyboard_by_user_status(message.chat.id, config.upload_book_text)
+        await menu_keyboard_by_user_status(message.chat.id, config.uploaded_book_text)
     else:
         await bot.send_message(message.chat.id, config.upload_book_text, parse_mode='html', reply_markup=user_kb.cancel_kb)
 

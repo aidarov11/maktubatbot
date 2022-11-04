@@ -1,6 +1,9 @@
+import asyncio
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Text
 from create_bot import bot, dp
+from aiogram.utils.exceptions import BotBlocked
 
 # DB
 from database import postgres_db
@@ -12,6 +15,36 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # FSM
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+
+
+# Todo
+# 1. Рассылка с проверкой рассылки
+# 2. Статистика Список пользователей, Кол-во книг по жанрам, Популярные жанры, Популярные книги
+# user_status = await postgres_db.get_user_status(message.chat.id)
+#
+# if user_status > 1:
+#     await FSMMailing.mailing_text.set()
+#
+#     await bot.send_message(message.chat.id, '<b>Введите текст рассылки:</b>', parse_mode='html',
+#                            reply_markup=cancel_mailing_kb)
+# else:
+#     await bot.send_message(message.chat.id, 'Эта функция вам недоступна.')
+# async def load_mailing_text(message: types.Message, state: FSMContext):
+#     user_status = await postgres_db.get_user_status(message.chat.id)
+#
+#     if user_status > 0:
+#         users_id = await postgres_db.get_telegram_users_id()
+#
+#         for user_id in users_id:
+#             # Обход ошибки (Forbidden: bot was blocked by the user)
+#             try:
+#                 await bot.send_message(user_id, message.text, parse_mode="html")
+#             except BotBlocked:
+#                 await asyncio.sleep(1)
+#
+#         await state.finish()
+#
+#         await bot.send_message(message.chat.id, 'Рассылка успешно выполнено.', parse_mode='html', reply_markup=moderator_kb)
 
 
 async def admin_panel_command(message: types.Message):
@@ -39,14 +72,23 @@ async def pin_book_command(message: types.Message):
     await PinOrDeleteBook.book_id.set()
     PinOrDeleteBook.gear = 1
 
-    await bot.send_message(message.chat.id, 'Введите ид книги', parse_mode='html', reply_markup=admin_kb.cancel_kb)
+    await bot.send_message(message.chat.id, 'Кітаптың ID енгізіңіз:', parse_mode='html', reply_markup=admin_kb.cancel_kb)
 
 
 async def delete_book_command(message: types.Message):
     await PinOrDeleteBook.book_id.set()
     PinOrDeleteBook.gear = 2
 
-    await bot.send_message(message.chat.id, 'Введите ид книги которую хотите удалить', parse_mode='html', reply_markup=admin_kb.cancel_kb)
+    await bot.send_message(message.chat.id, 'Жойғыңыз келетін кітаптың ID енгізіңіз:', parse_mode='html', reply_markup=admin_kb.cancel_kb)
+
+
+async def statistics_command(message: types.Message):
+    await bot.send_message(message.chat.id, 'Бұл бөлім жасалу сатысында...')
+
+
+async def mailing_command(message: types.Message):
+    await Mailing.text.set()
+    await bot.send_message(message.chat.id, 'Тарату мәтінін енгізіңіз:', parse_mode='html', reply_markup=admin_kb.cancel_kb)
 
 
 async def back_command(message: types.message):
@@ -91,8 +133,10 @@ class PinOrDeleteBook(StatesGroup):
     book_file = State()
 
 
-class DeleteBook(StatesGroup):
-    book_id = State()
+class Mailing(StatesGroup):
+    text = State()
+    type = State()
+
 
 async def cancel_upload_book_command(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
@@ -195,13 +239,13 @@ async def set_book_id(message: types.Message, state=FSMContext):
             data['book_id'] = int(message.text)
 
         await PinOrDeleteBook.next()
-        await bot.send_message(message.chat.id, 'Прикрепите книгу', parse_mode='html', reply_markup=admin_kb.cancel_kb)
+        await bot.send_message(message.chat.id, 'Кітапты тіркеңіз:', parse_mode='html', reply_markup=admin_kb.cancel_kb)
     else:
         book_id = int(message.text)
         await postgres_db.delete_book(book_id)
 
         await state.finish()
-        await bot.send_message(message.chat.id, 'Книга успешна удалена!', parse_mode='html', reply_markup=admin_kb.menu_kb)
+        await bot.send_message(message.chat.id, 'Кітап сәтті жойылды!', parse_mode='html', reply_markup=admin_kb.menu_kb)
 
 
 async def set_book_file(message: types.Message, state=FSMContext):
@@ -217,9 +261,41 @@ async def set_book_file(message: types.Message, state=FSMContext):
         await postgres_db.add_file(file_type, file_id, file_path, book_id)
 
         await state.finish()
-        await bot.send_message(message.chat.id, 'Кітап сәтті қосылды.', parse_mode='html', reply_markup=admin_kb.menu_kb)
+        await bot.send_message(message.chat.id, 'Кітап сәтті қосылды!', parse_mode='html', reply_markup=admin_kb.menu_kb)
     else:
-        await bot.send_message(message.chat.id, 'Кайта жберініз')
+        await bot.send_message(message.chat.id, 'Кітапты қайта жберініз')
+
+
+async def mailing_text(message: types.message, state: FSMContext):
+    async with state.proxy() as data:
+        data['text'] = message.text
+
+    await Mailing.next()
+    await bot.send_message(message.chat.id, 'Тарату түрін таңдаңыз:', parse_mode='html', reply_markup=admin_kb.mailing_kb)
+
+
+
+async def mailing_type(message: types.message, state: FSMContext):
+    async with state.proxy() as data:
+        mailing_text = data['text']
+
+    if message.text == '📩 Өзіме жберу':
+        await state.finish()
+        await bot.send_message(message.chat.id, mailing_text, parse_mode='html', reply_markup=admin_kb.menu_kb)
+    elif message.text == '💌 Тарату':
+        users_id = await postgres_db.get_users_id()
+        number_of_users = len(users_id)
+        number_of_failed_attempts = 0
+
+        for user_id in users_id:
+            try:
+                await bot.send_message(user_id[0], mailing_text, parse_mode='html')
+            except BotBlocked:
+                number_of_failed_attempts += 1
+                await asyncio.sleep(1)
+
+        await state.finish()
+        await bot.send_message(message.chat.id, f'Тарату сәтті аяқталды 🙌 ({number_of_users}/{number_of_users-number_of_failed_attempts})', parse_mode='html', reply_markup=admin_kb.menu_kb)
 
 
 async def download_file(document):
@@ -239,16 +315,22 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(add_book_command, Text(equals='📚 Кітап қосу'))
     dp.register_message_handler(pin_book_command, Text(equals='📎 Кітап тіркеу'))
     dp.register_message_handler(delete_book_command, Text(equals='🗑 Кітап жою'))
-    # dp.register_message_handler(statistics_command, Text(equals='📊 Статистика'))
+    dp.register_message_handler(statistics_command, Text(equals='📊 Статистика'))
+    dp.register_message_handler(mailing_command, Text(equals='📝 Рассылка'))
     dp.register_message_handler(back_command, Text(equals='↩️ Бас мәзір'))
-
 
     # FSM
     dp.register_message_handler(cancel_upload_book_command, Text(equals='Бас тарту', ignore_case=True), state='*')
 
+    # Mailing
+    dp.register_message_handler(mailing_text, state=Mailing.text)
+    dp.register_message_handler(mailing_type, state=Mailing.type)
+
+    # Pin or delete book
     dp.register_message_handler(set_book_id, state=PinOrDeleteBook.book_id)
     dp.register_message_handler(set_book_file, content_types=types.ContentTypes.DOCUMENT, state=PinOrDeleteBook.book_file)
 
+    # Add book
     dp.register_message_handler(set_title, state=UploadBook.title)
     dp.register_message_handler(set_description, state=UploadBook.description)
     dp.register_message_handler(set_author, state=UploadBook.author)
@@ -259,13 +341,3 @@ def register_handler(dp: Dispatcher):
     # Callback
     dp.register_callback_query_handler(complement_callback, lambda x: x.data and x.data.startswith('complement '))
     dp.register_callback_query_handler(delete_callback, lambda x: x.data and x.data.startswith('delete '))
-
-
-
-
-"""
-    Кітаптар сөресіне артка кайту жасау
-    Жана кытаптар
-    Ен коп жуктелгендер
-
-"""

@@ -6,7 +6,7 @@ load_dotenv()
 
 def sql_start():
     global conn, cur
-    conn = psycopg2.connect(dbname=os.getenv('DBNAME'), host='localhost', user=os.getenv('DBUSERNAME'), password=os.getenv('DBPASSWORD'))
+    conn = psycopg2.connect(dbname=os.getenv('DB_NAME'), host='localhost', user=os.getenv('DB_USER'), password=os.getenv('DB_PASS'))
     cur = conn.cursor()
 
     if conn:
@@ -33,6 +33,13 @@ async def get_user_id(tg_id):
     record = cur.fetchone()
 
     return record[0]
+
+
+async def get_users_id():
+    cur.execute('select telegram_id from users')
+    records = cur.fetchall()
+
+    return records
 
 
 async def get_user_status(tg_id):
@@ -164,78 +171,3 @@ async def get_unverified_files():
 
     return records
 
-
-# User
-"""
-    id
-    first_name
-    last_name
-    username
-    tg_id
-    status
-    created_at 
-    
-    create table users (
-        id serial primary key, 
-        first_name text, 
-        last_name text, 
-        username text, 
-        telegram_id text, 
-        status int default 0, 
-        created_at timestamp default current_timestamp
-    );
-"""
-
-
-# Genres
-"""
-    id 
-    name
-    views (Статистика)
-
-    create table genres (
-        id serial primary key,
-        name text not null,
-        views int default 0
-    );
-"""
-# Books
-"""
-    id 
-    poster_id +-
-    title 
-    description
-    author
-    genre_id
-    is_verified
-    downloads
-    created_at 
-    
-    create table books (
-        id serial primary key, 
-        title text,
-        description text,
-        author text, 
-        genre_id int,
-        user_id int,
-        is_verified boolean default false,
-        downloads int default 0,
-        created_at timestamp default current_timestamp
-    );
-"""
-
-# files
-"""
-    id
-    path
-    file_type 
-    book_id
-    
-    create table files (
-        id serial primary key,
-        type text not null,
-        file_id text not null,
-        path text not null, 
-        book_id int 
-    );
-"""

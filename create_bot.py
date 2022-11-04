@@ -9,7 +9,7 @@ load_dotenv()
 storage = MemoryStorage()
 
 # local_server = TelegramAPIServer.from_base('http://localhost:8081')
-# bot = Bot(token="765681391:AAH2f7pc_0P3wJfDEr12xstXNu1nCBLyrK4", server=local_server)
+# bot = Bot(token=os.getenv('TOKEN'), server=local_server)
 
 bot = Bot(token=os.getenv('TOKEN'))
 dp = Dispatcher(bot, storage=storage)

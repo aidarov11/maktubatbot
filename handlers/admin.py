@@ -27,7 +27,7 @@ async def awaiting_verification_command(message: types.Message):
 
     if files:
         for file in files:
-            await bot.send_document(message.chat.id, file[2], reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton('Толықтыру', callback_data=f'complement {file[4]}')).add(InlineKeyboardButton('Жою', callback_data=f'delete {file[0]} {file[4]}')))
+            await bot.send_document(message.chat.id, file[1], reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton('Толықтыру', callback_data=f'complement {file[3]}')).add(InlineKeyboardButton('Жою', callback_data=f'delete {file[0]} {file[3]}')))
     else:
         await bot.send_message(message.chat.id, 'Тізім бос')
 
@@ -186,6 +186,7 @@ async def set_book(message: types.Message, state: FSMContext):
 
     tg_id = message.chat.id
     user_id = await postgres_db.get_user_id(tg_id)
+    file_id = message.document.file_id
     file_type = message.document.mime_type.split('/')[1]
 
     if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx']:
@@ -194,8 +195,7 @@ async def set_book(message: types.Message, state: FSMContext):
             data = list(data.values())
             book_id = await postgres_db.add_book(data)
 
-        file_id, file_path = await download_file(message.document)
-        await postgres_db.add_file(file_type, file_id, file_path, book_id)
+        await postgres_db.add_file(file_id, file_type, book_id)
 
         await state.finish()
         await bot.send_message(message.chat.id, 'Кітап сәтті қосылды.', parse_mode='html', reply_markup=admin_kb.menu_kb)
@@ -220,16 +220,15 @@ async def set_book_id(message: types.Message, state=FSMContext):
 
 
 async def set_book_file(message: types.Message, state=FSMContext):
+    file_id = message.document.file_id
     file_type = message.document.mime_type.split('/')[1]
 
     if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx']:
         async with state.proxy() as data:
             book_id = data['book_id']
-            print(book_id)
 
+        await postgres_db.add_file(file_id, file_type, book_id)
 
-        file_id, file_path = await download_file(message.document)
-        await postgres_db.add_file(file_type, file_id, file_path, book_id)
 
         await state.finish()
         await bot.send_message(message.chat.id, 'Кітап сәтті қосылды!', parse_mode='html', reply_markup=admin_kb.menu_kb)
@@ -267,17 +266,6 @@ async def mailing_type(message: types.message, state: FSMContext):
 
         await state.finish()
         await bot.send_message(message.chat.id, f'Тарату сәтті аяқталды 🙌 ({number_of_users}/{number_of_users-number_of_failed_attempts})', parse_mode='html', reply_markup=admin_kb.menu_kb)
-
-
-async def download_file(document):
-    file_id = document.file_id
-    file = await bot.get_file(file_id)
-    file_path = file.file_path
-
-    destination = '/Users/aidarov/PycharmProjects/MaktubatkzBot/'
-    destination_file = await bot.download_file(file_path=file_path, destination_dir=destination)
-
-    return file_id, destination_file.name
 
 
 def register_handler(dp: Dispatcher):

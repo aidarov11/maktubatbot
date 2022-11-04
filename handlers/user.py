@@ -122,7 +122,7 @@ async def project_support_command(message: types.Message):
 
 async def log_out_command(message: types.Message):
     result = await bot.log_out()
-    print("Log out result: " + result)
+    print("Log out result: " + str(result))
 
 
 # Upload book FSM
@@ -148,15 +148,12 @@ async def cancel_upload_book_command(message: types.Message, state: FSMContext):
 async def upload_book(message: types.ContentTypes.DOCUMENT, state: FSMContext):
     tg_id = message.chat.id
     user_id = await postgres_db.get_user_id(tg_id)
+    file_id = message.document.file_id
     file_type = message.document.mime_type.split('/')[1]
 
     if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx', 'txt']:
         book_id = await postgres_db.add_empty_book(user_id)
-
-        await bot.send_message(message.chat.id, 'Күте тұрыңыз кітап жүктеліп жатыр...')
-
-        file_id, file_path = await download_file(message.document)
-        await postgres_db.add_file(file_type, file_id, file_path, book_id)
+        await postgres_db.add_file(file_id, file_type, book_id)
 
         await state.finish()
         await menu_keyboard_by_user_status(message.chat.id, config.uploaded_book_text)
@@ -171,17 +168,6 @@ async def menu_keyboard_by_user_status(chat_id, message):
         await bot.send_message(chat_id, message, parse_mode='html', reply_markup=user_kb.menu_kb)
     else:
         await bot.send_message(chat_id, message, parse_mode='html', reply_markup=user_kb.menu_with_admin_panel_kb)
-
-
-async def download_file(document):
-    file_id = document.file_id
-    file = await bot.get_file(file_id)
-    file_path = file.file_path
-
-    destination = '/Users/aidarov/PycharmProjects/MaktubatkzBot/'
-    destination_file = await bot.download_file(file_path=file_path, destination_dir=destination)
-
-    return file_id, destination_file.name
 
 
 async def normalize_books(chat_id, books):

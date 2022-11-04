@@ -145,8 +145,8 @@ async def increase_downloads_book(book_id):
     conn.commit()
 
 # Files
-async def add_file(file_type, file_id, file_path, book_id):
-    cur.execute('insert into files (type, file_id, path, book_id) values (%s, %s, %s, %s)', (file_type, file_id, file_path, book_id))
+async def add_file(file_id, file_type, book_id):
+    cur.execute('insert into files (file_id, type, book_id) values (%s, %s, %s)', (file_id, file_type, book_id))
     conn.commit()
 
     print('[INFO] New file has been added!')
@@ -166,7 +166,7 @@ async def get_files(book_id):
     return records
 
 async def get_unverified_files():
-    cur.execute('select files.id, files.type, files.file_id, files.path, books.id from files inner join books on files.book_id = books.id where is_verified = false')
+    cur.execute('select files.id, files.file_id, files.type, books.id from files inner join books on files.book_id = books.id where is_verified = false')
     records = cur.fetchall()
 
     return records

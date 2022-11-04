@@ -17,35 +17,6 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-# Todo
-# 1. Рассылка с проверкой рассылки
-# 2. Статистика Список пользователей, Кол-во книг по жанрам, Популярные жанры, Популярные книги
-# user_status = await postgres_db.get_user_status(message.chat.id)
-#
-# if user_status > 1:
-#     await FSMMailing.mailing_text.set()
-#
-#     await bot.send_message(message.chat.id, '<b>Введите текст рассылки:</b>', parse_mode='html',
-#                            reply_markup=cancel_mailing_kb)
-# else:
-#     await bot.send_message(message.chat.id, 'Эта функция вам недоступна.')
-# async def load_mailing_text(message: types.Message, state: FSMContext):
-#     user_status = await postgres_db.get_user_status(message.chat.id)
-#
-#     if user_status > 0:
-#         users_id = await postgres_db.get_telegram_users_id()
-#
-#         for user_id in users_id:
-#             # Обход ошибки (Forbidden: bot was blocked by the user)
-#             try:
-#                 await bot.send_message(user_id, message.text, parse_mode="html")
-#             except BotBlocked:
-#                 await asyncio.sleep(1)
-#
-#         await state.finish()
-#
-#         await bot.send_message(message.chat.id, 'Рассылка успешно выполнено.', parse_mode='html', reply_markup=moderator_kb)
-
 
 async def admin_panel_command(message: types.Message):
     await bot.send_message(message.chat.id, 'Админ панель:', parse_mode='html', reply_markup=admin_kb.menu_kb)

@@ -119,6 +119,12 @@ async def about_us_command(message: types.Message):
 async def project_support_command(message: types.Message):
     await bot.send_message(message.chat.id, config.project_support_text, parse_mode='html')
 
+
+async def log_out_command(message: types.Message):
+    result = await bot.log_out()
+    print("Log out result: " + result)
+
+
 # Upload book FSM
 class UploadBookFSM(StatesGroup):
     upload_book = State()
@@ -207,6 +213,7 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(about_us_command, Text(equals='ℹ️ Біз туралы'))
     dp.register_message_handler(project_support_command, Text(equals='♥️ Жобаны қолдау'))
     dp.register_message_handler(upload_book_command, Text(equals='📥 Кітап жіберу'))
+    dp.register_message_handler(log_out_command, commands=['tgLogOut'])
 
     # Search FSM
     dp.register_message_handler(cancel_search_book_command, Text(equals='Іздеуді тоқтату!', ignore_case=True), state='*')

@@ -189,7 +189,7 @@ async def set_book(message: types.Message, state: FSMContext):
     file_id = message.document.file_id
     file_type = message.document.mime_type.split('/')[1]
 
-    if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx']:
+    if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx', 'txt', 'rtf', 'azw']:
         async with state.proxy() as data:
             data['user_id'] = user_id
             data = list(data.values())
@@ -223,7 +223,7 @@ async def set_book_file(message: types.Message, state=FSMContext):
     file_id = message.document.file_id
     file_type = message.document.mime_type.split('/')[1]
 
-    if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx']:
+    if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx', 'txt', 'rtf', 'azw']:
         async with state.proxy() as data:
             book_id = data['book_id']
 

@@ -21,10 +21,11 @@ async def start_command(message: types.Message):
     if not await postgres_db.check_user(message.chat.id):
         await postgres_db.add_user(message)
 
-    if message.from_user.id not in [5091636122, 380448197, 515485172]:
-        await bot.send_message(message.chat.id, 'Техникалық жұмыстарға байланысты бот уақытша өз жұмысын тоқтата тұруда.\n\nТүсіністікпен қарап күте тұруларынызды сұраймыз!')
-    else:
-        await menu_keyboard_by_user_status(message.chat.id, config.welcome_text)
+    # if message.from_user.id not in [5091636122, 380448197, 515485172]:
+    #     await bot.send_message(message.chat.id, 'Техникалық жұмыстарға байланысты бот уақытша өз жұмысын тоқтата тұруда.\n\nТүсіністікпен қарап күте тұруларынызды сұраймыз!')
+    # else:
+    #     await menu_keyboard_by_user_status(message.chat.id, config.welcome_text)
+    await menu_keyboard_by_user_status(message.chat.id, config.welcome_text)
 
 
 class SearchBookFSM(StatesGroup):
@@ -151,7 +152,7 @@ async def upload_book(message: types.ContentTypes.DOCUMENT, state: FSMContext):
     file_id = message.document.file_id
     file_type = message.document.mime_type.split('/')[1]
 
-    if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx', 'txt']:
+    if file_type in ['pdf', 'epub', 'mobi', 'doc', 'docx', 'txt', 'rtf', 'azw']:
         book_id = await postgres_db.add_empty_book(user_id)
         await postgres_db.add_file(file_id, file_type, book_id)
 
@@ -159,6 +160,7 @@ async def upload_book(message: types.ContentTypes.DOCUMENT, state: FSMContext):
         await menu_keyboard_by_user_status(message.chat.id, config.uploaded_book_text)
     else:
         await bot.send_message(message.chat.id, config.upload_book_text, parse_mode='html', reply_markup=user_kb.cancel_kb)
+
 
 # Additional functions
 async def menu_keyboard_by_user_status(chat_id, message):

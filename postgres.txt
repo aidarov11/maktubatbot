@@ -12,6 +12,13 @@ create table users (
         created_at timestamp default current_timestamp
 );
 
+create table user_statistics (
+    id serial primary key,
+    active_users text,
+    inactive_users text,
+    created_at timestamp default current_timestamp
+);
+
 create table genres (
         id serial primary key,
         name text not null,

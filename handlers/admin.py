@@ -5,6 +5,8 @@ from aiogram.dispatcher.filters import Text
 from create_bot import bot, dp
 from aiogram.utils.exceptions import BotBlocked
 
+import datetime
+
 # DB
 from database import postgres_db
 
@@ -54,7 +56,36 @@ async def delete_book_command(message: types.Message):
 
 
 async def statistics_command(message: types.Message):
-    await bot.send_message(message.chat.id, 'Бұл бөлім жасалу сатысында...')
+    await bot.send_message(message.chat.id, 'Статистика бөлімі:', parse_mode='html', reply_markup=admin_kb.stat_kb)
+
+# Статистика пользователей
+# 	- Общее кол-во
+# 	- Кол-во активных и не активных
+# 	- Получить список пользователей по excel
+async def user_statistics(message: types.Message):
+    number_of_users = await postgres_db.get_numbet_of_users()
+    statistics = await postgres_db.get_user_statistics()
+    active_users = 0
+    inactive_users = 0
+
+    if statistics:
+        active_users = statistics[0]
+        inactive_users = statistics[1]
+        date = str(statistics[2]).split(' ')
+
+
+    await bot.send_message(message.chat.id, f'Пайдаланушылар саны: <i>{number_of_users}</i>\n\n<b>{date[0]}</b>\nБелсенділер саны: <i>{active_users}</i>\nБелсенділер емес саны: <i>{inactive_users}</i>', parse_mode='html')
+
+
+async def book_statistics(message: types.Message):
+    statistics = await postgres_db.get_genre_statistics()
+    number_of_books = await postgres_db.get_number_of_books()
+    genre_statistics = ''
+
+    for statistic in statistics:
+        genre_statistics += f'#{statistic[0]}\nКітап саны: <i>{statistic[1]}</i>\nЖүктелген кітап саны: <i>{statistic[2]}\n\n</i>'
+
+    await bot.send_message(message.chat.id, f'Кітаптардың жалпы саны: <i>{number_of_books}</i>\n\n{genre_statistics}', parse_mode='html')
 
 
 async def mailing_command(message: types.Message):
@@ -216,7 +247,7 @@ async def set_book_id(message: types.Message, state=FSMContext):
         await postgres_db.delete_book(book_id)
 
         await state.finish()
-        await bot.send_message(message.chat.id, 'Кітап сәтті жойылды!', parse_mode='html', reply_markup=admin_kb.menu_kb)
+        await bot.send_message(message.chat.id, 'Кітап сәтті жойылды', parse_mode='html', reply_markup=admin_kb.menu_kb)
 
 
 async def set_book_file(message: types.Message, state=FSMContext):
@@ -231,7 +262,7 @@ async def set_book_file(message: types.Message, state=FSMContext):
 
 
         await state.finish()
-        await bot.send_message(message.chat.id, 'Кітап сәтті қосылды!', parse_mode='html', reply_markup=admin_kb.menu_kb)
+        await bot.send_message(message.chat.id, 'Кітап сәтті қосылды', parse_mode='html', reply_markup=admin_kb.menu_kb)
     else:
         await bot.send_message(message.chat.id, 'Кітапты қайта жберініз')
 
@@ -264,8 +295,11 @@ async def mailing_type(message: types.message, state: FSMContext):
                 number_of_failed_attempts += 1
                 await asyncio.sleep(1)
 
+        active_users = number_of_users - number_of_failed_attempts
+        await postgres_db.add_user_statistics(active_users, number_of_failed_attempts)
+
         await state.finish()
-        await bot.send_message(message.chat.id, f'Тарату сәтті аяқталды 🙌 ({number_of_users}/{number_of_users-number_of_failed_attempts})', parse_mode='html', reply_markup=admin_kb.menu_kb)
+        await bot.send_message(message.chat.id, f'Тарату сәтті аяқталды 🙌 ({number_of_users}/{active_users})', parse_mode='html', reply_markup=admin_kb.menu_kb)
 
 
 def register_handler(dp: Dispatcher):
@@ -275,6 +309,9 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(pin_book_command, Text(equals='📎 Кітап тіркеу'))
     dp.register_message_handler(delete_book_command, Text(equals='🗑 Кітап жою'))
     dp.register_message_handler(statistics_command, Text(equals='📊 Статистика'))
+    dp.register_message_handler(user_statistics, Text(equals='👫 Пайдаланушылар'))
+    dp.register_message_handler(book_statistics, Text(equals='📚 Кітаптар'))
+    dp.register_message_handler(admin_panel_command, Text(equals='↩️ Артқа'))
     dp.register_message_handler(mailing_command, Text(equals='📝 Рассылка'))
     dp.register_message_handler(back_command, Text(equals='↩️ Бас мәзір'))
 

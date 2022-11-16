@@ -51,9 +51,45 @@ async def get_user_status(tg_id):
 
 async def get_telegram_users_id():
     cur.execute('select telegram_id from users')
-    records = cur.fetchall()
+    record = cur.fetchall()
 
-    return records
+    return record
+
+
+async def get_user_data(tg_user_id):
+    cur.execute('select first_name, last_name, username from users where telegram_id = %s', (str(tg_user_id),))
+    record = cur.fetchone()
+
+    return record
+
+
+async def get_numbet_of_users():
+    cur.execute('select count(id) from users')
+    record = cur.fetchone()
+
+    return record[0]
+
+
+async def update_user_data(user):
+    cur.execute('update users set first_name = %s, last_name = %s, username = %s where telegram_id = %s', (str(user.first_name), str(user.last_name), str(user.username), str(user.id)))
+    conn.commit()
+
+    print('[INFO] User data updated')
+
+
+# User statistics
+async def add_user_statistics(active_users, inactive_users):
+    cur.execute('insert into user_statistics(active_users, inactive_users) values (%s, %s)', (active_users, inactive_users))
+    conn.commit()
+
+    print('[INFO] User statistics added')
+
+
+async def get_user_statistics():
+    cur.execute('select active_users, inactive_users, created_at from user_statistics order by created_at desc limit 1')
+    record = cur.fetchone()
+
+    return record
 
 
 # Genre
@@ -129,6 +165,19 @@ async def get_books_by_genre_id(genre_id):
 
     return records
 
+async def get_number_of_books():
+    cur.execute('select count(id) from books where is_verified=true')
+    record = cur.fetchone()
+
+    return  record[0]
+
+
+async def get_genre_statistics():
+    cur.execute('select genres.name, count(books.id), sum(books.downloads) from books inner join genres on books.genre_id = genres.id where is_verified = true group by genres.name')
+    records = cur.fetchall()
+
+    return records
+
 
 async def delete_book(book_id):
     cur.execute('DELETE FROM books WHERE id = %s', (book_id,))
@@ -143,6 +192,7 @@ async def delete_book(book_id):
 async def increase_downloads_book(book_id):
     cur.execute('update books set downloads = downloads + 1 where id = %s', (book_id,))
     conn.commit()
+
 
 # Files
 async def add_file(file_id, file_type, book_id):

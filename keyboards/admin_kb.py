@@ -11,6 +11,13 @@ menu_btn7 = KeyboardButton('↩️ Бас мәзір')
 menu_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 menu_kb.add(menu_btn1).add(menu_btn2, menu_btn3).add(menu_btn4, menu_btn5).add(menu_btn6).add(menu_btn7)
 
+stat_btn1 = KeyboardButton('👫 Пайдаланушылар')
+stat_btn2 = KeyboardButton('📚 Кітаптар')
+stat_btn3 = KeyboardButton('↩️ Артқа')
+
+stat_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+stat_kb.add(stat_btn1).add(stat_btn2).add(stat_btn3)
+
 genre_btn1 = KeyboardButton('Ақида')
 genre_btn2 = KeyboardButton('Құран')
 genre_btn3 = KeyboardButton('Сүннет')

@@ -67,6 +67,7 @@ async def user_statistics(message: types.Message):
     statistics = await postgres_db.get_user_statistics()
     active_users = 0
     inactive_users = 0
+    date = ['0']
 
     if statistics:
         active_users = statistics[0]

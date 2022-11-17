@@ -1,5 +1,5 @@
 from aiogram import types, Dispatcher
-from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher.filters import Text, Filter
 from create_bot import bot, dp
 
 # DB
@@ -20,6 +20,18 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+# Filter
+class isGenre(Filter):
+    async def check(self, message: types.Message) -> bool:
+        genres = await postgres_db.get_genres()
+        genre = message.text
+
+        if genre in genres:
+            return True
+
+        return False
 
 
 async def start_command(message: types.Message):
@@ -44,8 +56,18 @@ async def search_book_command(message: types.Message):
 
 
 async def show_genres_of_books_command(message: types.Message):
-    await BooksByGenreFSM.genre.set()
     await bot.send_message(message.chat.id, 'Жанрлар:', parse_mode='html', reply_markup=user_kb.genre_kb)
+
+
+async def books_by_genre(message: types.Message):
+    genre = message.text
+    genre_id = await postgres_db.get_genre_id(genre)
+    books = await postgres_db.get_books_by_genre_id(genre_id)
+
+    if books:
+        await normalize_books(message.chat.id, books)
+    else:
+        await bot.send_message(message.chat.id, 'Жанрдын іші бос', parse_mode='html')
 
 
 async def show_new_books_command(message: types.Message):
@@ -82,10 +104,6 @@ class SearchBookFSM(StatesGroup):
     search = State()
 
 
-class BooksByGenreFSM(StatesGroup):
-    genre = State()
-
-
 class UploadBookFSM(StatesGroup):
     upload_book = State()
 
@@ -111,19 +129,15 @@ async def search_book(message: types.Message, state: FSMContext):
         await bot.send_message(message.chat.id, '3 әріптен көп сөзді енгізіңіз', parse_mode='html')
 
 
-# Books by genre FSM
-async def books_by_genre(message: types.Message, state: FSMContext):
-    genres = await postgres_db.get_genres()
-    genre = message.text
+# go back to the menu
+async def menu_command(message: types.Message):
+    chat_id = message.chat.id
+    user_status = await postgres_db.get_user_status(chat_id)
 
-    if genre in genres:
-        genre_id = await postgres_db.get_genre_id(genre)
-        books = await postgres_db.get_books_by_genre_id(genre_id)
-
-        if books:
-            await normalize_books(message.chat.id, books)
-        else:
-            await bot.send_message(message.chat.id, 'Жанрдын іші бос', parse_mode='html')
+    if user_status == 1:
+        await bot.send_message(chat_id, 'Бас мәзір', reply_markup=user_kb.menu_with_admin_panel_kb)
+    else:
+        await bot.send_message(chat_id, 'Бас мәзір', reply_markup=user_kb.menu_kb)
 
 
 # Upload book FSM
@@ -219,24 +233,22 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(start_command, commands=['start'])
     dp.register_message_handler(search_book_command, Text(equals='🔍 Іздеу'))
     dp.register_message_handler(show_genres_of_books_command, Text(equals='📚 Кітаптар сөресі'))
+    dp.register_message_handler(menu_command, Text(equals='🔙 Артқа', ignore_case=True))
     dp.register_message_handler(show_new_books_command, Text(equals='🆕 Жаңа кітаптар'))
     dp.register_message_handler(show_popular_books_command, Text(equals='🔝 Ең көп жүктелгендер'))
     dp.register_message_handler(about_us_command, Text(equals='ℹ️ Біз туралы'))
     dp.register_message_handler(project_support_command, Text(equals='♥️ Жобаны қолдау'))
     dp.register_message_handler(upload_book_command, Text(equals='📥 Кітап жіберу'))
     dp.register_message_handler(log_out_command, commands=['tgLogOut'])
+    dp.register_message_handler(books_by_genre, isGenre())
 
 
     # FSM
     dp.register_message_handler(cancel_fsm_command, Text(equals='Іздеуді тоқтату', ignore_case=True), state='*')
-    dp.register_message_handler(cancel_fsm_command, Text(equals='🔙 Артқа', ignore_case=True), state='*')
     dp.register_message_handler(cancel_fsm_command, Text(equals='↩️ Бас тарту', ignore_case=True), state='*')
 
     # Search FSM
     dp.register_message_handler(search_book, state=SearchBookFSM.search)
-
-    # Books by genre FSM
-    dp.register_message_handler(books_by_genre, state=BooksByGenreFSM.genre)
 
     # Upload book FSM
     dp.register_message_handler(upload_book, content_types=types.ContentTypes.DOCUMENT, state=UploadBookFSM.upload_book)
@@ -244,5 +256,4 @@ def register_handler(dp: Dispatcher):
 
     # Callback
     dp.register_callback_query_handler(download_file_callback, lambda x: x.data and x.data.startswith('download '))
-
     dp.register_callback_query_handler(check_user_subscribe_callback, lambda x: x.data and x.data.startswith('check '))

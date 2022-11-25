@@ -40,6 +40,8 @@ class isQuery(Filter):
 
             if books:
                 return True
+            else:
+                await bot.send_message(message.chat.id, 'Өкінішке орай, сіз іздеген кітап табылмады', parse_mode='html')
         else:
             await bot.send_message(message.chat.id, '3 әріптен көп сөзді енгізіңіз', parse_mode='html')
 

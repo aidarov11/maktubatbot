@@ -104,7 +104,10 @@ async def get_genre_id(genre_name):
     cur.execute('select id from genres where name = %s', (str(genre_name),))
     record = cur.fetchone()
 
-    return record[0]
+    if record:
+        return record[0]
+
+    return False
 
 
 # Books

@@ -21,7 +21,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 # Filter
 class isGenre(Filter):
     async def check(self, message: types.Message) -> bool:
@@ -30,6 +29,19 @@ class isGenre(Filter):
 
         if genre in genres:
             return True
+
+        return False
+
+
+class isQuery(Filter):
+    async def check(self, message: types.Message) -> bool:
+        if len(message.text) > 3:
+            books = await postgres_db.get_books(message.text.lower())
+
+            if books:
+                return True
+        else:
+            await bot.send_message(message.chat.id, '3 әріптен көп сөзді енгізіңіз', parse_mode='html')
 
         return False
 
@@ -51,8 +63,12 @@ async def start_command(message: types.Message):
 
 
 async def search_book_command(message: types.Message):
-    await SearchBookFSM.search.set()
     await bot.send_message(message.chat.id, config.search_text, parse_mode='html', reply_markup=user_kb.search_kb)
+
+
+async def books_by_query(message: types.Message):
+    books = await postgres_db.get_books(message.text.lower())
+    await normalize_books(message.chat.id, books)
 
 
 async def show_genres_of_books_command(message: types.Message):
@@ -99,11 +115,6 @@ async def log_out_command(message: types.Message):
     print("Log out result: " + str(result))
 
 
-# FSM
-class SearchBookFSM(StatesGroup):
-    search = State()
-
-
 class UploadBookFSM(StatesGroup):
     upload_book = State()
 
@@ -118,15 +129,6 @@ async def cancel_fsm_command(message: types.Message, state: FSMContext):
     await state.finish()
 
     await menu_keyboard_by_user_status(message.chat.id, 'Бас мәзір')
-
-
-# Search book FSM
-async def search_book(message: types.Message, state: FSMContext):
-    if len(message.text) > 3:
-        books = await postgres_db.get_books(message.text.lower())
-        await normalize_books(message.chat.id, books)
-    else:
-        await bot.send_message(message.chat.id, '3 әріптен көп сөзді енгізіңіз', parse_mode='html')
 
 
 # go back to the menu
@@ -241,18 +243,14 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(upload_book_command, Text(equals='📥 Кітап жіберу'))
     dp.register_message_handler(log_out_command, commands=['tgLogOut'])
     dp.register_message_handler(books_by_genre, isGenre())
-
+    dp.register_message_handler(books_by_query, isQuery())
 
     # FSM
-    dp.register_message_handler(cancel_fsm_command, Text(equals='Іздеуді тоқтату', ignore_case=True), state='*')
     dp.register_message_handler(cancel_fsm_command, Text(equals='↩️ Бас тарту', ignore_case=True), state='*')
 
-    # Search FSM
-    dp.register_message_handler(search_book, state=SearchBookFSM.search)
 
     # Upload book FSM
     dp.register_message_handler(upload_book, content_types=types.ContentTypes.DOCUMENT, state=UploadBookFSM.upload_book)
-
 
     # Callback
     dp.register_callback_query_handler(download_file_callback, lambda x: x.data and x.data.startswith('download '))

@@ -233,9 +233,13 @@ async def normalize_books(chat_id, books):
 
 def register_handler(dp: Dispatcher):
     dp.register_message_handler(start_command, commands=['start'])
+
     dp.register_message_handler(search_book_command, Text(equals='🔍 Іздеу'))
+    dp.register_message_handler(menu_command, Text(equals='Іздеуді тоқтату', ignore_case=True))
+
     dp.register_message_handler(show_genres_of_books_command, Text(equals='📚 Кітаптар сөресі'))
     dp.register_message_handler(menu_command, Text(equals='🔙 Артқа', ignore_case=True))
+
     dp.register_message_handler(show_new_books_command, Text(equals='🆕 Жаңа кітаптар'))
     dp.register_message_handler(show_popular_books_command, Text(equals='🔝 Ең көп жүктелгендер'))
     dp.register_message_handler(about_us_command, Text(equals='ℹ️ Біз туралы'))

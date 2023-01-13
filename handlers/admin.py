@@ -284,7 +284,7 @@ async def set_genre(message: types.Message, state: FSMContext):
             await UploadBook.next()
             await bot.send_message(message.chat.id, 'Төменге жіберетін кітапты енгізіңіз:', parse_mode='html', reply_markup=admin_kb.cancel_kb)
     else:
-        await bot.send_message(message.chat.id, 'Кітаптің жанрын таңдаңыз:', parse_mode='html', reply_markup=admin_kb.genre_kb)
+        await bot.send_message(message.chat.id, 'Кітаптің жанрын таңдаңыз:', parse_mode='html', reply_markup=await get_genres_kb())
 
 
 async def set_book(message: types.Message, state: FSMContext):

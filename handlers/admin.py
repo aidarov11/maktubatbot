@@ -394,7 +394,7 @@ async def username_state(message: types.message, state: FSMContext):
 
 async def user_rights_state(message: types.message, state: FSMContext):
     role = message.text
-    roles = ['Модератор', 'Супер Модератор', 'Администратор']
+    roles = ['Модератор', 'Администратор']
     async with state.proxy() as data:
         tg_id = data['tg_id']
 

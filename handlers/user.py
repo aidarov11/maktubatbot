@@ -1,24 +1,14 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Text, Filter
 from create_bot import bot, dp
-
-# DB
 from database import postgres_db
-
-# Keyboards
 from keyboards import user_kb
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-
-# FSM
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-
-# Config
 import config
-
 import os
 from dotenv import load_dotenv
-
 load_dotenv()
 
 # Filter
@@ -35,13 +25,15 @@ class isGenre(Filter):
 
 class isQuery(Filter):
     async def check(self, message: types.Message) -> bool:
+        words = ['👨‍💻 Админ панель', '✅ Толықтырулар күтілуде', '📚 Кітап қосу', '📎 Кітап тіркеу', '🗑 Кітап жою', '📊 Статистика', '👫 Пайдаланушылар', '📚 Кітаптар', '🔐 Рөл', '📝 Рөл иеленушілер', '✏️ Рөл беру', '↩️ Артқа', '📝 Рассылка', '↩️ Бас мәзір', 'Бас тарту']
         if len(message.text) > 3:
-            books = await postgres_db.get_books(message.text.lower())
+            if message.text not in words:
+                books = await postgres_db.get_books(message.text.lower())
 
-            if books:
-                return True
-            else:
-                await bot.send_message(message.chat.id, 'Өкінішке орай, сіз іздеген кітап табылмады', parse_mode='html')
+                if books:
+                    return True
+                else:
+                    await bot.send_message(message.chat.id, 'Өкінішке орай, сіз іздеген кітап табылмады', parse_mode='html')
         else:
             await bot.send_message(message.chat.id, '3 әріптен көп сөзді енгізіңіз', parse_mode='html')
 
@@ -65,7 +57,7 @@ async def start_command(message: types.Message):
 
 
 async def search_book_command(message: types.Message):
-    await bot.send_message(message.chat.id, config.search_text, parse_mode='html', reply_markup=user_kb.search_kb)
+    await bot.send_message(message.chat.id, config.search_text, parse_mode='html')
 
 
 async def books_by_query(message: types.Message):
@@ -74,7 +66,7 @@ async def books_by_query(message: types.Message):
 
 
 async def show_genres_of_books_command(message: types.Message):
-    await bot.send_message(message.chat.id, 'Жанрлар:', parse_mode='html', reply_markup=user_kb.genre_kb)
+    await bot.send_message(message.chat.id, 'Жанрлар:', parse_mode='html', reply_markup=await get_genres_kb())
 
 
 async def books_by_genre(message: types.Message):
@@ -201,7 +193,7 @@ async def check_user_subscribe(tg_user_id):
     subscribe_kb = InlineKeyboardMarkup()
     subscribe_kb.add(subscribe_btn).add(check_btn)
 
-    message = await bot.send_message(tg_user_id, 'Ботты қолдану үшін алдымен біздің каналға тіркеліңіз.', reply_markup=subscribe_kb)
+    await bot.send_message(tg_user_id, 'Ботты қолдану үшін алдымен біздің каналға тіркеліңіз.', reply_markup=subscribe_kb)
 
 
 async def menu_keyboard_by_user_status(chat_id, message):
@@ -211,6 +203,23 @@ async def menu_keyboard_by_user_status(chat_id, message):
         await bot.send_message(chat_id, message, parse_mode='html', reply_markup=user_kb.menu_kb)
     else:
         await bot.send_message(chat_id, message, parse_mode='html', reply_markup=user_kb.menu_with_admin_panel_kb)
+
+
+async def get_genres_kb():
+    genres = await postgres_db.get_genres()
+
+    genres_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    other_btn = KeyboardButton('Әртүрлі')
+    cancel_btn = KeyboardButton('🔙 Артқа')
+    genre_btns = []
+
+    for genre in genres:
+        if genre != 'Әртүрлі':
+            genre_btns.append(KeyboardButton(genre))
+
+    genres_kb.add(*genre_btns).add(other_btn).add(cancel_btn)
+
+    return genres_kb
 
 
 async def normalize_books(chat_id, books):
@@ -237,8 +246,6 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(start_command, commands=['start'])
 
     dp.register_message_handler(search_book_command, Text(equals='🔍 Іздеу'))
-    dp.register_message_handler(menu_command, Text(equals='Іздеуді тоқтату', ignore_case=True))
-
     dp.register_message_handler(show_genres_of_books_command, Text(equals='📚 Кітаптар сөресі'))
     dp.register_message_handler(menu_command, Text(equals='🔙 Артқа', ignore_case=True))
 
@@ -253,7 +260,6 @@ def register_handler(dp: Dispatcher):
 
     # FSM
     dp.register_message_handler(cancel_fsm_command, Text(equals='↩️ Бас тарту', ignore_case=True), state='*')
-
 
     # Upload book FSM
     dp.register_message_handler(upload_book, content_types=types.ContentTypes.DOCUMENT, state=UploadBookFSM.upload_book)

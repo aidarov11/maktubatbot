@@ -42,8 +42,32 @@ async def get_users_id():
     return records
 
 
+async def get_users_username():
+    cur.execute('select username from users where status < 4')
+    records = cur.fetchall()
+
+    return records
+
+
 async def get_user_status(tg_id):
     cur.execute('select status from users where telegram_id = %s', (str(tg_id),))
+    record = cur.fetchone()
+
+    return record[0]
+
+
+async def set_user_status(status, tg_id):
+    cur.execute('update users set status = %s where telegram_id = %s', (status, str(tg_id)))
+    conn.commit()
+
+
+async def reset_user_status(id):
+    cur.execute('update users set status = 0 where id = %s', (id,))
+    conn.commit()
+
+
+async def get_tg_id(username):
+    cur.execute('select telegram_id from users where username = %s', (str(username),))
     record = cur.fetchone()
 
     return record[0]
@@ -63,7 +87,7 @@ async def get_user_data(tg_user_id):
     return record
 
 
-async def get_numbet_of_users():
+async def get_number_of_users():
     cur.execute('select count(id) from users')
     record = cur.fetchone()
 
@@ -75,6 +99,13 @@ async def update_user_data(user):
     conn.commit()
 
     print('[INFO] User data updated')
+
+
+async def get_right_owners():
+    cur.execute('select id, first_name, last_name, username, status from users where status > 0')
+    records = cur.fetchall()
+
+    return records
 
 
 # User statistics

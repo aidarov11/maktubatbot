@@ -6,40 +6,43 @@ menu_btn3 = KeyboardButton('📎 Кітап тіркеу')
 menu_btn4 = KeyboardButton('🗑 Кітап жою')
 menu_btn5 = KeyboardButton('📊 Статистика')
 menu_btn6 = KeyboardButton('📝 Рассылка')
-menu_btn7 = KeyboardButton('↩️ Бас мәзір')
+menu_btn7 = KeyboardButton('🔐 Рөл')
+menu_btn8 = KeyboardButton('↩️ Бас мәзір')
+
 
 menu_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-menu_kb.add(menu_btn1).add(menu_btn2, menu_btn3).add(menu_btn4, menu_btn5).add(menu_btn6).add(menu_btn7)
+menu_kb.add(menu_btn1).add(menu_btn2, menu_btn3).add(menu_btn4, menu_btn5).add(menu_btn6, menu_btn7).add(menu_btn8)
 
-stat_btn1 = KeyboardButton('👫 Пайдаланушылар')
-stat_btn2 = KeyboardButton('📚 Кітаптар')
-stat_btn3 = KeyboardButton('↩️ Артқа')
 
-stat_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-stat_kb.add(stat_btn1).add(stat_btn2).add(stat_btn3)
+back_btn = KeyboardButton('↩️ Артқа')
 
-genre_btn1 = KeyboardButton('Ақида')
-genre_btn2 = KeyboardButton('Құран')
-genre_btn3 = KeyboardButton('Сүннет')
-genre_btn4 = KeyboardButton('Хадис')
-genre_btn5 = KeyboardButton('Фиқһ')
-genre_btn6 = KeyboardButton('Намаз')
-genre_btn7 = KeyboardButton('Ораза')
-genre_btn8 = KeyboardButton('Зекет және садақа')
-genre_btn9 = KeyboardButton('Қажылық')
-genre_btn10 = KeyboardButton('Әйел және отбасы')
-genre_btn11 = KeyboardButton('Әдеп және тасаууф')
-genre_btn12 = KeyboardButton('Адасқан ағымдар')
-genre_btn13 = KeyboardButton('Өмірбаян және тарих')
-genre_btn14 = KeyboardButton('Ғылым')
-genre_btn15 = KeyboardButton('Әртүрлі')
+back_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+back_kb.add(back_btn)
+
 cancel_btn = KeyboardButton('Бас тарту')
-
-genre_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-genre_kb.add(genre_btn1, genre_btn2, genre_btn3, genre_btn4, genre_btn5, genre_btn6, genre_btn7, genre_btn8, genre_btn9, genre_btn10, genre_btn11, genre_btn2, genre_btn3, genre_btn4, genre_btn15).row(cancel_btn)
 
 cancel_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel_kb.add(cancel_btn)
+
+
+stat_btn1 = KeyboardButton('👫 Пайдаланушылар')
+stat_btn2 = KeyboardButton('📚 Кітаптар')
+
+stat_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+stat_kb.add(stat_btn1).add(stat_btn2).add(back_btn)
+
+
+rights_btn1 = KeyboardButton('📝 Рөл иеленушілер')
+rights_btn2 = KeyboardButton('✏️ Рөл беру')
+
+rights_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+rights_kb.add(rights_btn1).add(rights_btn2).add(back_btn)
+
+role_btn1 = KeyboardButton('Модератор')
+role_btn2 = KeyboardButton('Администратор')
+
+roles_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+roles_kb.add(role_btn1).add(role_btn2).add(cancel_btn)
 
 
 mailing_btn1 = KeyboardButton('📩 Өзіме жберу')

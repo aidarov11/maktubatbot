@@ -260,7 +260,7 @@ async def set_author(message: types.Message, state: FSMContext):
         data['author'] = message.text
 
     await UploadBook.next()
-    await bot.send_message(message.chat.id, 'Кітаптің жанрын таңдаңыз:', parse_mode='html', reply_markup=admin_kb.genre_kb)
+    await bot.send_message(message.chat.id, 'Кітаптің жанрын таңдаңыз:', parse_mode='html', reply_markup=await get_genres_kb())
 
 
 async def set_genre(message: types.Message, state: FSMContext):

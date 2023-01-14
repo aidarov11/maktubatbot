@@ -366,7 +366,7 @@ async def mailing_type(message: types.message, state: FSMContext):
         for user_id in users_id:
             try:
                 await bot.send_message(user_id[0], mailing_text, parse_mode='html')
-            except BotBlocked:
+            except:
                 number_of_failed_attempts += 1
                 await asyncio.sleep(1)
 

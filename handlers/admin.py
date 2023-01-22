@@ -2,7 +2,6 @@ import asyncio
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Text
 from create_bot import bot, dp
-from aiogram.utils.exceptions import BotBlocked
 from database import postgres_db
 from keyboards import admin_kb, user_kb
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
@@ -110,7 +109,7 @@ async def mailing_command(message: types.Message):
     user_status = await postgres_db.get_user_status(message.chat.id)
     if user_status > 2:
         await Mailing.text.set()
-        await bot.send_message(message.chat.id, 'Тарату мәтінін енгізіңіз:', parse_mode='html', reply_markup=admin_kb.cancel_kb)
+        await bot.send_message(message.chat.id, 'Тарату мәтінін енгізіңіз:', parse_mode='html', reply_markup=admin_kb.pass_cancel_kb)
     else:
         await bot.send_message(message.chat.id, '🚫', reply_markup=admin_kb.menu_kb)
 
@@ -207,6 +206,7 @@ class PinOrDeleteBook(StatesGroup):
 
 class Mailing(StatesGroup):
     text = State()
+    file = State()
     type = State()
 
 
@@ -215,7 +215,7 @@ class Rights(StatesGroup):
     user_rights = State()
 
 
-async def cancel_upload_book_command(message: types.Message, state: FSMContext):
+async def cancel_fsm_command(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
 
     if current_state == None:
@@ -343,38 +343,109 @@ async def set_book_file(message: types.Message, state=FSMContext):
 
 
 async def mailing_text(message: types.message, state: FSMContext):
-    async with state.proxy() as data:
-        data['text'] = message.text
+    text = message.text
 
-    await Mailing.next()
-    await bot.send_message(message.chat.id, 'Тарату түрін таңдаңыз:', parse_mode='html', reply_markup=admin_kb.mailing_kb)
+    async with state.proxy() as data:
+        if text != 'Өткізіп жіберу':
+            data['text'] = message.text
+            await Mailing.next()
+        else:
+            data['text'] = None
+            await Mailing.next()
+
+    await bot.send_message(message.chat.id, 'Таратуға арналған сурет немесе видеоны жберініз:', parse_mode='html', reply_markup=admin_kb.pass_cancel_kb)
+
+
+async def mailing_file(message: types.ContentTypes.TEXT | types.ContentTypes.PHOTO | types.ContentTypes.VIDEO, state: FSMContext):
+    async with state.proxy() as data:
+        if message['text']:
+            if message['text'] == 'Өткізіп жіберу':
+                if data['text'] == None:
+                    await cancel_fsm_command(message, state)
+                    return
+                else:
+                    data['file_type'] = None
+                    data['file_id'] = None
+
+                    await Mailing.next()
+        else:
+            if message['video']:
+                data['file_type'] = 'video'
+                data['file_id'] = message['video'].file_id
+
+                await Mailing.next()
+            elif message['photo']:
+                data['file_type'] = 'photo'
+                data['file_id'] = message['photo'][-1].file_id
+
+                await Mailing.next()
+            else:
+                await bot.send_message(message.chat.id, 'Таратуға арналған сурет немесе видеоны жберініз:', parse_mode='html', reply_markup=admin_kb.pass_cancel_kb)
+
+    await bot.send_message(message.chat.id, 'Таратылуға арналған тарату:', parse_mode='html', reply_markup=admin_kb.mailing_kb)
+    await completed_mailing(message, state)
+
+
+
+async def completed_mailing(message, state):
+    async with state.proxy() as data:
+        text = data['text']
+        file_type = data['file_type']
+        file_id = data['file_id']
+
+        if text and file_type:
+            if file_type == 'photo':
+                await bot.send_photo(message.chat.id, photo=file_id, caption=text, parse_mode='html')
+            elif file_type == 'video':
+                await bot.send_video(message.chat.id, video=file_id, caption=text, parse_mode='html')
+        elif text:
+            await bot.send_message(message.chat.id, text, parse_mode='html')
+        elif file_type:
+            if file_type == 'photo':
+                await bot.send_photo(message.chat.id, photo=file_id)
+            elif file_type == 'video':
+                await bot.send_video(message.chat.id, video=file_id)
 
 
 
 async def mailing_type(message: types.message, state: FSMContext):
-    async with state.proxy() as data:
-        mailing_text = data['text']
+    await bot.send_message(message.chat.id, '<b>Таратылу басталды!</b>\nТаратылу толық біткенше күте тұруыңызды сұраймыз', parse_mode='html')
 
-    if message.text == '📩 Өзіме жберу':
-        await state.finish()
-        await bot.send_message(message.chat.id, mailing_text, parse_mode='html', reply_markup=admin_kb.menu_kb)
-    elif message.text == '💌 Тарату':
+    if message.text == '💌 Тарату':
         users_id = await postgres_db.get_users_id()
         number_of_users = len(users_id)
         number_of_failed_attempts = 0
 
-        for user_id in users_id:
-            try:
-                await bot.send_message(user_id[0], mailing_text, parse_mode='html')
-            except:
-                number_of_failed_attempts += 1
-                await asyncio.sleep(1)
+        async with state.proxy() as data:
+            text = data['text']
+            file_type = data['file_type']
+            file_id = data['file_id']
+
+            for user_id in users_id:
+                try:
+                    if text and file_type:
+                        if file_type == 'photo':
+                            await bot.send_photo(user_id[0], photo=file_id, caption=text, parse_mode='html')
+                        elif file_type == 'video':
+                            await bot.send_video(user_id[0], video=file_id, caption=text, parse_mode='html')
+                    elif text:
+                        await bot.send_message(user_id[0], text, parse_mode='html')
+                    elif file_type:
+                        if file_type == 'photo':
+                            await bot.send_photo(user_id[0], photo=file_id)
+                        elif file_type == 'video':
+                            await bot.send_video(user_id[0], video=file_id)
+                except:
+                    number_of_failed_attempts += 1
+                    await asyncio.sleep(1)
 
         active_users = number_of_users - number_of_failed_attempts
         await postgres_db.add_user_statistics(active_users, number_of_failed_attempts)
 
         await state.finish()
         await bot.send_message(message.chat.id, f'Тарату сәтті аяқталды 🙌 ({number_of_users}/{active_users})', parse_mode='html', reply_markup=admin_kb.menu_kb)
+    else:
+        await bot.send_message(message.chat.id, 'Рассылканы бастау үшін "💌 Тарату" батырмасын басыныз')
 
 
 async def username_state(message: types.message, state: FSMContext):
@@ -459,7 +530,7 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(back_command, Text(equals='↩️ Бас мәзір'))
 
     # FSM
-    dp.register_message_handler(cancel_upload_book_command, Text(equals='Бас тарту', ignore_case=True), state='*')
+    dp.register_message_handler(cancel_fsm_command, Text(equals='Бас тарту', ignore_case=True), state='*')
 
     # Rights
     dp.register_message_handler(username_state, state=Rights.username)
@@ -467,6 +538,7 @@ def register_handler(dp: Dispatcher):
 
     # Mailing
     dp.register_message_handler(mailing_text, state=Mailing.text)
+    dp.register_message_handler(mailing_file, content_types=types.ContentTypes.TEXT | types.ContentTypes.PHOTO | types.ContentTypes.VIDEO, state=Mailing.file)
     dp.register_message_handler(mailing_type, state=Mailing.type)
 
     # Pin or delete book

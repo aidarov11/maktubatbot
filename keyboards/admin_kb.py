@@ -19,10 +19,17 @@ back_btn = KeyboardButton('↩️ Артқа')
 back_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 back_kb.add(back_btn)
 
+
 cancel_btn = KeyboardButton('Бас тарту')
 
 cancel_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel_kb.add(cancel_btn)
+
+
+pass_btn = KeyboardButton('Өткізіп жіберу')
+
+pass_cancel_kb = ReplyKeyboardMarkup(resize_keyboard=True)
+pass_cancel_kb.add(pass_btn).add(cancel_btn)
 
 
 stat_btn1 = KeyboardButton('👫 Пайдаланушылар')
@@ -45,9 +52,8 @@ roles_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 roles_kb.add(role_btn1).add(role_btn2).add(cancel_btn)
 
 
-mailing_btn1 = KeyboardButton('📩 Өзіме жберу')
-mailing_btn2 = KeyboardButton('💌 Тарату')
+mailing_btn = KeyboardButton('💌 Тарату')
 
 mailing_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-mailing_kb.add(mailing_btn1).add(mailing_btn2).add(cancel_btn)
+mailing_kb.add(mailing_btn).add(cancel_btn)
 

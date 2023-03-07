@@ -224,7 +224,7 @@ async def get_genres_kb():
 
 async def normalize_books(chat_id, books):
     await bot.send_message(chat_id, f'<i>Табылған кітап саны:</i> {len(books)}', parse_mode='html')
-    bot.send_message(chat_id, f'{books}')
+    await bot.send_message(chat_id, f'{books}')
     user_status = await postgres_db.get_user_status(chat_id)
 
     for book in books:

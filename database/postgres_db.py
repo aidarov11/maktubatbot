@@ -187,7 +187,7 @@ async def get_popular_books():
 
 
 async def get_books(text):
-    cur.execute(f"SELECT books.id, books.title, books.description, books.author, genres.name FROM books INNER JOIN genres ON books.genre_id = genres.id where is_verified = true AND LOWER(books.title) LIKE '%{text}%' OR LOWER(books.description) LIKE '%{text}%' OR LOWER(books.author) LIKE '%{text}%' OR LOWER(genres.name) LIKE '%{text}%'")
+    cur.execute(f"SELECT books.id, books.title, books.description, books.author, genres.name FROM books INNER JOIN genres ON books.genre_id = genres.id where is_verified = true AND LOWER(books.title) LIKE '%{text}%' OR LOWER(books.author) LIKE '%{text}%' OR LOWER(genres.name) LIKE '%{text}%'")
     records = cur.fetchall()
 
     return records
